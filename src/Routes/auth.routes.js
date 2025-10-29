@@ -1,12 +1,16 @@
 import { Router } from "express";
-import { register } from "../Controllers/auth.controller.js";
-import { registerSchema } from "../Validation/auth.validation.js";
+import { register, login, logout } from "../Controllers/auth.controller.js";
+import { registerSchema, loginSchema } from "../Validation/auth.validation.js";
 import { validateBody } from "../Middlewares/validate.middleware.js";
-
 
 
 const router = Router();
 
-router.post("/register",validateBody(registerSchema) ,register);
+// تسجيل مستخدم جديد
+router.post("/register", validateBody(registerSchema), register);
+
+// تسجيل دخول
+router.post("/login", validateBody(loginSchema), login);
+router.post("/logout", logout);
 
 export default router;
