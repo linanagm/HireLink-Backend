@@ -1,5 +1,6 @@
 import { userRegister, userLogin } from "../Services/auth.service.js";
 
+// ✅ register
 export const register = async (req, res, next) => {
   try {
     const { user, token } = await userRegister(req.body);
@@ -14,6 +15,8 @@ export const register = async (req, res, next) => {
   }
 };
 
+
+// ✅ login
 export const login = async (req, res, next) => {
   try {
     const { user, token } = await userLogin(req.body);
@@ -28,6 +31,8 @@ export const login = async (req, res, next) => {
   }
 };
 
+
+// ✅ logout
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {
@@ -41,3 +46,12 @@ export const logout = async (req, res) => {
     res.status(500).json({ message: "Server error while logging out 😢" });
   }
 };
+
+// ✅ get current user ~> auth/me route
+export const getCurrentUser = async (req, res) => {
+  
+    const { id,name, email, role } = req.user;
+    res.json({ id, name,email, role });
+};
+
+

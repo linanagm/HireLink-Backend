@@ -5,12 +5,17 @@ import companyRouter from "./Routes/company.routes.js";
 import { globalErrorHandler } from "./Utils/errorHandling.utils.js";
 import dotenv from "dotenv";
 dotenv.config();
-import prisma , { connectDB } from "../prisma/client.js";
+import { connectDB } from "../prisma/client.js";
+import cookieParser from "cookie-parser";
+
 
 const bootstrap = async (app , express) => {
     
     //dotenv.config();
     app.use(express.json());
+
+    //cookie parser
+    app.use(cookieParser());
 
     //connect to database
     await connectDB();

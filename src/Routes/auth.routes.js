@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { register, login, logout } from "../Controllers/auth.controller.js";
+import { register, login, logout, getCurrentUser } from "../Controllers/auth.controller.js";
 import { registerSchema, loginSchema } from "../Validation/auth.validation.js";
 import { validateBody } from "../Middlewares/validate.middleware.js";
-
+import  verifyToken  from "../Middlewares/verifyToken.js";
 
 const router = Router();
 
@@ -11,6 +11,12 @@ router.post("/register", validateBody(registerSchema), register);
 
 // تسجيل دخول
 router.post("/login", validateBody(loginSchema), login);
+
 router.post("/logout", logout);
+
+
+// GET /auth/me - معلومات المستخدم الحالي 
+router.get("/me", verifyToken, getCurrentUser);
+
 
 export default router;

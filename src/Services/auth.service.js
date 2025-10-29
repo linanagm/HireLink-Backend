@@ -1,8 +1,9 @@
-import { hash } from "../Utils/hash.utils.js";
+import { hash , compare} from "../Utils/hash.utils.js";
 import prisma from "../../prisma/client.js";
 import { generateToken } from "../Utils/jwt.utils.js";
-import bcrypt from "bcrypt";
 
+
+// ✅ register service
 export const userRegister = async ({ name, email, password, phone, role }) => {
   const userIsExist = await prisma.user.findUnique({ where: { email } });
   if (userIsExist) {
@@ -40,11 +41,11 @@ export const userRegister = async ({ name, email, password, phone, role }) => {
 export const userLogin = async ({ email, password }) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw { message: "User not found", statusCode: 404 };
-
-  const isMatch = await bcrypt.compare(password, user.password);
+ 
+  const isMatch = await compare({ plainText: password, hash: user.password });
   if (!isMatch) throw { message: "Invalid password", statusCode: 401 };
 
-  const token = generateToken({ id: user.id, role: user.role });
+  const token = generateToken({ id: user.id, email: user.email ,role: user.role });
 
   return { user, token };
 };
