@@ -1,21 +1,25 @@
-// src/middlewares/verifyToken.js
-import jwt from "jsonwebtoken";
+import { verifyToken as jwtVerify } from "../Utils/auth.utils.js";
+import { ServiceError } from "../Utils/serviceError.utils.js";
 
+
+// middleware to verify token
 const verifyToken = (req, res, next) => {
+  
+  let token;
+
   const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(401).json({ message: "Unauthorized: No token provided" });
 
-  const token = authHeader.split(" ")[1]; // Bearer <token>
-  if (!token) return res.status(401).json({ message: "Unauthorized: Token missing" });
+  if (authHeader) token = authHeader.split(" ")[1];
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // id, email, role
-    next();
-  } catch (err) {
-    console.error("Token verification error:", err);
-    res.status(403).json({ message: "Forbidden: Invalid token" });
-  }
+  if (!token && req.cookies) token = req.cookies.token;
+
+  if (!token) throw new ServiceError("Unauthorized: No token provided", 401);
+
+  const decoded = jwtVerify(token); // لو حصل خطأ هيتحول لل handler
+
+  req.user = decoded;
+
+  next();
 };
 
 export default verifyToken;

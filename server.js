@@ -1,10 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-
-import profileRoutes from "./src/Routes/profile.routes.js";
-import authRoutes from "./src/Routes/auth.routes.js";
-import companyRoutes from "./src/Routes/company.routes.js";
+import "express-async-errors";
+import bootsrap from "./src/app.controller.js"
 
 // ✅ Load environment variables first
 dotenv.config();
@@ -14,13 +12,15 @@ const app = express();
 
 // ✅ Middlewares
 app.use(express.json());
+
+// ✅ Cookie parser
 app.use(cookieParser());
 
-// ✅ All routes under /api
-app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/companies", companyRoutes);
+// ✅ Routes
+await bootsrap(app , express);
+
+// ✅ Port
+const PORT = process.env.PORT || 5200;
 
 // ✅ Start server
-const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

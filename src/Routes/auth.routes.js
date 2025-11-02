@@ -12,7 +12,8 @@ router.post("/register", validateBody(registerSchema), register);
 // تسجيل دخول
 router.post("/login", validateBody(loginSchema), login);
 
-router.post("/logout", logout);
+//user logout 
+router.post("/logout", verifyToken ,logout);
 
 
 // GET /auth/me - معلومات المستخدم الحالي 

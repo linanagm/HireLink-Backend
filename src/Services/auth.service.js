@@ -1,22 +1,18 @@
-// src/Services/auth.service.js
 import { hash, compare } from "../Utils/hash.utils.js";
-import { PrismaClient } from "../generated/prisma/client.js";
-const prisma = new PrismaClient();
+import prisma from "../../prisma/client.js";
+import { ServiceError } from "../Utils/serviceError.utils.js";
+import { generateToken } from "../Utils/auth.utils.js";
+import { AUTH_MESSAGES } from "../Utils/Constants/messages.js";
+import STATUS_CODES from "../Utils/Constants/statuscode.js";
 
-import { generateToken } from "../Utils/jwt.utils.js";
 
-// Class Error موحد للتعامل مع كل الأخطاء
-class ServiceError extends Error {
-  constructor(message, statusCode = 400) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
 
 // ✅ register service
 export const userRegister = async ({ name, email, password, phone, role }) => {
+
   const userExists = await prisma.user.findUnique({ where: { email } });
-  if (userExists) throw new ServiceError("Email already exists", 409);
+  
+  if (userExists) throw new ServiceError( AUTH_MESSAGES.EMAIL_EXISTS , STATUS_CODES.CONFLICT);
 
   const hashedPassword = await hash({ plainText: password });
 
@@ -39,8 +35,13 @@ export const userRegister = async ({ name, email, password, phone, role }) => {
   return { user: newUser, token };
 };
 
+
+
+                           /***********************************************************************/
+
 // ✅ login service
 export const userLogin = async ({ email, password }) => {
+
   const user = await prisma.user.findUnique({
     where: { email },
     select: {
@@ -56,7 +57,7 @@ export const userLogin = async ({ email, password }) => {
     },
   });
 
-  if (!user) throw new ServiceError("User not found", 404);
+  if (!user) throw new ServiceError( AUTH_MESSAGES.USER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
   const isMatch = await compare({ plainText: password, hash: user.password });
   if (!isMatch) throw new ServiceError("Invalid password", 401);

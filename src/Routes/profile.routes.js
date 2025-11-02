@@ -1,14 +1,11 @@
 import express from "express";
-import { getProfile, updateProfile } from "../controllers/profile.controller.js";
-import verifyToken from "../middlewares/verifyToken.js";
-
+import { getUserProfile, updateUserProfile } from "../Controllers/profile.controller.js";
+import verifyToken from "../Middlewares/verifyToken.js";
 
 const router = express.Router();
 
-// 🟢 GET /profile → بيانات المستخدم الحالي
-router.get("/", verifyToken, getProfile);
+router.get("/", verifyToken, getUserProfile);
 
-// 🟡 PUT /profile → تحديث بيانات البروفايل
-router.put("/", verifyToken, updateProfile);
+router.put("/", verifyToken, updateUserProfile);
 
 export default router;

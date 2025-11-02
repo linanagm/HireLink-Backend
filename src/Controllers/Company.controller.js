@@ -1,51 +1,49 @@
-// src/controllers/company.controller.js
-import { PrismaClient } from "../generated/prisma/client.js"; // صحح المسار
-const prisma = new PrismaClient();
-export default prisma;
+import { createOrUpdateCompanyService, getCompanyByIdService } from "../Services/company.service.js";
+import { COMPANY_MESSAGES} from "../Utils/Constants/messages.js";
+import { ServiceError } from "../Utils/serviceError.utils.js";
+import {successResponse} from "../Utils/successResponse.utils.js";
+import STATUS_CODES from "../Utils/Constants/statuscode.js";
 
-// خطأ موحد
-const handleServiceError = (err, res) => {
-  if (err.statusCode) return res.status(err.statusCode).json({ message: err.message });
-  console.error("Unexpected error:", err);
-  return res.status(500).json({ message: "Internal server error" });
+
+
+// Create or update company
+export const createOrUpdateCompany = async (req, res, next) => {
+
+  if (!req.user) throw new ServiceError("Unauthorized: No token provided", 401);
+
+  const companyData = req.body;
+
+  const company = await createOrUpdateCompanyService(req.user.id, req.user.role, companyData);
+
+  successResponse({
+    res,
+    statusCode: STATUS_CODES.CREATED,
+    message: COMPANY_MESSAGES.CREATE_OR_UPDATE_SUCCESS,
+    data: company
+  });
+ 
+      
 };
 
-// إنشاء أو تعديل بيانات الشركة
-export const createOrUpdateCompany = async (req, res) => {
-  try {
-    if (!req.user) return res.status(401).json({ message: "Unauthorized: No token provided" });
-    if (req.user.role !== "COMPANY") return res.status(403).json({ message: "Only COMPANY users can update profile" });
 
-    const { companyName, description, location, website, industry, logoUrl, establishedAt } = req.body;
 
-    const company = await prisma.user.update({
-      where: { id: req.user.id },
-      data: { companyName, description, location, website, industry, logoUrl, establishedAt },
-      select: { id: true, companyName: true, description: true, location: true, website: true, industry: true, logoUrl: true, establishedAt: true, role: true }
-    });
+           /****************************************************************************/
 
-    res.status(201).json({ message: "Company profile created/updated successfully", company });
-  } catch (err) {
-    handleServiceError(err, res);
-  }
-};
 
-// جلب بيانات الشركة حسب id
+//GET company by id
 export const getCompanyById = async (req, res) => {
-  try {
-    if (!req.user) return res.status(401).json({ message: "Unauthorized: No token provided" });
 
-    const id = Number(req.params.id);
-    const company = await prisma.user.findUnique({
-      where: { id },
-      select: { id: true, companyName: true, description: true, location: true, website: true, industry: true, logoUrl: true, establishedAt: true, role: true }
-    });
+  if (!req.user) throw new ServiceError("Unauthorized: No token provided", 401);
 
-    if (!company || company.role !== "COMPANY") return res.status(404).json({ message: "Company not found" });
+  const companyId = Number(req.params.id);
+  
+  const company = await getCompanyByIdService(companyId);
 
-    res.status(200).json(company);
-  } catch (err) {
-    handleServiceError(err, res);
-  }
+  successResponse({
+    res,
+    statusCode: STATUS_CODES.OK,
+    message: COMPANY_MESSAGES.GET_SUCCESS,
+    data: company
+  });
 };
 
