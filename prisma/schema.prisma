@@ -149,7 +149,8 @@ model Application {
   jobId        Int
   applicant    User             @relation(fields: [applicantId], references: [id])
   applicantId  Int
-  coverLetter  String?          
+  coverLetter  String?    
+  cvUrl         String?       
   status       ApplicationStatus @default(PENDING)
   interviewDate DateTime?       
   createdAt    DateTime         @default(now())
