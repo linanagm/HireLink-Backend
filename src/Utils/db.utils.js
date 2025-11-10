@@ -37,7 +37,7 @@ export const getById = async ({ model, id, include = {}, resourceName = "Resourc
     include,
   });
 
-  if (!record) throw new Error(`${resourceName}NotFound`);
+  if (!record) throw new Error(`${resourceName}NotFound` , {cause : STATUS_CODES.NOT_FOUND});
   
   return record;
 };
@@ -65,3 +65,5 @@ export const checkOwnership = (record, userIdField, userId) => {
     if (Number(record[userIdField]) !== Number(userId)) throw new Error(COMMON_MESSAGES.UNAUTHORIZED , STATUS_CODES.FORBIDDEN);
 
 };
+
+

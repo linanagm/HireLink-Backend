@@ -1,14 +1,5 @@
 import { successResponse } from "../Utils/successResponse.utils.js";
-import {
-  getAllJobsService,
-  createJobService,
-  getJobByIdService,
-  updateJobByIdService,
-  deleteJobService,
-  applyForJobService,
-  getApplicantsByJobIdService,
-  updateApplicationStatusService
-} from "../Services/jobs.services.js";
+import * as jobsService from "../Services/jobs.service.js";
 import STATUS_CODES from "../Utils/Constants/statuscode.js";
 import { JOBS_MESSAGES, COMMON_MESSAGES } from "../Utils/Constants/messages.js";
 import { jobSchemaValidation } from "../Validation/jobs.validation.js";
@@ -19,7 +10,7 @@ export const createJob = async (req, res, next) => {
     const { error, value } = jobSchemaValidation.validate(req.body);
     if (error) throw new Error(error.details[0].message);
 
-    const job = await createJobService(req.user.id, value);
+    const job = await jobsService.createJobService(req.user.id, value);
     return successResponse({
       res,
       statusCode: STATUS_CODES.CREATED,
@@ -34,7 +25,7 @@ export const createJob = async (req, res, next) => {
 // تعديل وظيفة
 export const updateJobById = async (req, res, next) => {
   try {
-    const job = await updateJobByIdService(req.params.id, req.user.id, req.body);
+    const job = await jobsService.updateJobByIdService(req.params.id, req.user.id, req.body);
     if (!job) throw new Error(JOBS_MESSAGES.NOT_FOUND);
     
     return successResponse({
@@ -51,7 +42,7 @@ export const updateJobById = async (req, res, next) => {
 // حذف وظيفة
 export const deleteJob = async (req, res, next) => {
   try {
-    await deleteJobService(req.params.id, req.user.id);
+    await jobsService.deleteJobService(req.params.id, req.user.id);
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
@@ -65,7 +56,7 @@ export const deleteJob = async (req, res, next) => {
 // جلب وظيفة واحدة
 export const getJobById = async (req, res, next) => {
   try {
-    const job = await getJobByIdService(req.params.id);
+    const job = await jobsService.getJobByIdService(req.params.id);
     if (!job) throw new Error(JOBS_MESSAGES.NOT_FOUND);
 
     return successResponse({
@@ -82,7 +73,7 @@ export const getJobById = async (req, res, next) => {
 // جلب كل الوظائف
 export const getAllJobs = async (req, res, next) => {
   try {
-    const jobs = await getAllJobsService(req.query);
+    const jobs = await jobsService.getAllJobsService(req.query);
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
@@ -100,7 +91,7 @@ export const applyForJob = async (req, res, next) => {
     const cvUrl = req.file ? req.file.path : null;
     if (!cvUrl) throw new Error("CV file is required");
 
-    const application = await applyForJobService(req.params.id, req.user.id, cvUrl);
+    const application = await jobsService.applyForJobService(req.params.id, req.user.id, cvUrl);
     return successResponse({
       res,
       statusCode: STATUS_CODES.CREATED,
@@ -115,7 +106,7 @@ export const applyForJob = async (req, res, next) => {
 // عرض المتقدمين لوظيفة
 export const getApplicantsByJobId = async (req, res, next) => {
   try {
-    const applicants = await getApplicantsByJobIdService(req.params.id, req.user.id);
+    const applicants = await jobsService.getApplicantsByJobIdService(req.params.id, req.user.id);
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
@@ -131,7 +122,7 @@ export const getApplicantsByJobId = async (req, res, next) => {
 export const updateApplicationStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const updated = await updateApplicationStatusService(req.params.id, status);
+    const updated = await jobsService.updateApplicationStatusService(req.params.id, status);
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,

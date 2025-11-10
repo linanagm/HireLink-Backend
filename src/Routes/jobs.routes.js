@@ -38,6 +38,7 @@ router.patch("/applications/:id/status", verifyToken, updateApplicationStatus);
 // =====================
 router.post("/:id/apply", verifyToken, upload.single("cv"), applyForJob);
 
+
 // =====================
 // جلب الوظائف
 // =====================

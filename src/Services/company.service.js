@@ -60,3 +60,26 @@ export const getCompanyByIdService = async (companyId) => {
 
   return company;
 };
+
+                           /*****************************************************************************/
+
+//PATCH company logo
+export const updateCompanyLogoService = async (userId, logoPath) => {
+  
+      const updatedUser = await prisma.user.update({
+          where: { id : userId }, 
+          
+          data: { logoUrl: logoPath },
+      });
+      console.log(updatedUser);
+      
+      if (!updatedUser) throw new ServiceError("User not found", 404);
+      
+      return {    
+          success: true, 
+          message: "User image updated successfully", 
+          data: updatedUser, 
+      };
+
+
+};

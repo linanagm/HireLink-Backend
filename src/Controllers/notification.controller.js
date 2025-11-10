@@ -2,7 +2,7 @@ import {
   getNotificationsForUser,
   markNotificationAsRead,
   createNotification,
-} from "../Services/notification.services.js";
+} from "../Services/notification.service.js";
 
 // ✅ جلب كل الإشعارات للمستخدم الحالي
 export const fetchNotifications = async (req, res) => {

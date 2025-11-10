@@ -1,4 +1,4 @@
-import { createOrUpdateCompanyService, getCompanyByIdService } from "../Services/company.service.js";
+import * as companyServices from "../Services/company.service.js";
 import { COMPANY_MESSAGES} from "../Utils/Constants/messages.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 import {successResponse} from "../Utils/successResponse.utils.js";
@@ -13,7 +13,7 @@ export const createOrUpdateCompany = async (req, res, next) => {
 
   const companyData = req.body;
 
-  const company = await createOrUpdateCompanyService(req.user.id, req.user.role, companyData);
+  const company = await companyServices.createOrUpdateCompanyService(req.user.id, req.user.role, companyData);
 
   successResponse({
     res,
@@ -37,7 +37,7 @@ export const getCompanyById = async (req, res) => {
 
   const companyId = Number(req.params.id);
   
-  const company = await getCompanyByIdService(companyId);
+  const company = await companyServices.getCompanyByIdService(companyId);
 
   successResponse({
     res,
@@ -45,5 +45,38 @@ export const getCompanyById = async (req, res) => {
     message: COMPANY_MESSAGES.GET_SUCCESS,
     data: company
   });
+};
+
+
+
+          /****************************************************************************/
+
+//PATCH company logo
+export const updateCompanyLogo = async (req, res, next) => {
+
+  const userId = req.user.id; //from auth middleware
+  
+      const imagePath = req.file.finalPath; //multer uploaded file
+      
+      
+      if (!imagePath) {
+          return res.status(400).json({
+              success: false,
+              message: "No image uploaded"
+          })
+      }
+  
+      //save image in db
+      const result = await companyServices.updateCompanyLogoService(userId, imagePath);
+      
+      
+      if (!result.success) return res.status(500).json(result);
+  
+      return successResponse ({ 
+          res, 
+          statusCode: 200, 
+          message: "Company logo uploaded successfully ✅",
+          data : result.data, 
+      });
 };
 

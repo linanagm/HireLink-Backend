@@ -5,9 +5,9 @@ import { fetchNotifications, readNotification } from "../Controllers/notificatio
 const router = Router();
 
 // ✅ جلب كل الإشعارات للمستخدم الحالي
-router.get("/", verifyToken, fetchNotifications);
+router.get("/notifications", verifyToken, fetchNotifications);
 
 // ✅ تحديث إشعار كمقروء
-router.patch("/:id/read", verifyToken, readNotification);
+router.patch("/:id/notifications/read", verifyToken, readNotification);
 
 export default router;

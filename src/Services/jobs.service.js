@@ -8,8 +8,11 @@ import { ServiceError } from "../Utils/serviceError.utils.js";
 // إنشاء وظيفة
 // ======================
 export const createJobService = async (userId, jobData) => {
+  
   const company = await prisma.user.findFirst({ where: { id: userId, role: "COMPANY" } });
-  if (!company) throw new ServiceError(JOBS_MESSAGES.ONLY_COMPANY_CAN_CREATE_JOB, STATUS_CODES.FORBIDDEN);
+  
+  if (!company) throw new ServiceError(JOBS_MESSAGES.ONLY_COMPANY_CAN_CREATE_JOB,  STATUS_CODES.FORBIDDEN );
+  
   return createRecord("job", { ...jobData, companyId: company.id });
 };
 
