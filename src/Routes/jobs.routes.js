@@ -1,5 +1,5 @@
 import { Router } from "express";
-import verifyToken from "../Middlewares/verifyToken.js";
+import {authentication , tokenTypeEnum} from "../Middlewares/authentication.middleware.js";
 import { upload } from "../Middlewares/uploadCV.js";
 import { 
   createJob, 
@@ -17,32 +17,32 @@ const router = Router();
 // =====================
 // 🧱 CRUD الوظائف
 // =====================
-router.post("/", verifyToken, createJob); // إنشاء وظيفة
-router.put("/:id", verifyToken, updateJobById); // تعديل وظيفة
-router.delete("/:id", verifyToken, deleteJob); // حذف وظيفة
+router.post("/", authentication({ tokenType : tokenTypeEnum.access}), createJob); // إنشاء وظيفة
+router.put("/:id", authentication({ tokenType : tokenTypeEnum.access}), updateJobById); // تعديل وظيفة
+router.delete("/:id", authentication({ tokenType : tokenTypeEnum.access}), deleteJob); // حذف وظيفة
 
 // =====================
 // 👥 عرض المتقدّمين لكل وظيفة (لازم تكون الشركة مالكة الوظيفة)
 // مهم: لازم يكون قبل الـ "/:id" عشان ميتغلبش
 // =====================
-router.get("/:id/applications", verifyToken, getApplicantsByJobId);
+router.get("/:id/applications", authentication({ tokenType : tokenTypeEnum.access}), getApplicantsByJobId);
 
 // =====================
 // 🔄 تعديل حالة الطلب
 // Endpoint: PATCH /api/jobs/applications/:id/status
 // =====================
-router.patch("/applications/:id/status", verifyToken, updateApplicationStatus);
+router.patch("/applications/:id/status", authentication({ tokenType : tokenTypeEnum.access}), updateApplicationStatus);
 
 // =====================
 // 🧾 التقديم على وظيفة
 // =====================
-router.post("/:id/apply", verifyToken, upload.single("cv"), applyForJob);
+router.post("/:id/apply", authentication({ tokenType : tokenTypeEnum.access}), upload.single("cv"), applyForJob);
 
 
 // =====================
 // جلب الوظائف
 // =====================
-router.get("/", getAllJobs); // كل الوظائف
-router.get("/:id", getJobById); // وظيفة واحدة
+router.get("/",authentication({ tokenType : tokenTypeEnum.access}), getAllJobs); // كل الوظائف
+router.get("/:id",authentication({ tokenType : tokenTypeEnum.access}) ,getJobById); // وظيفة واحدة
 
 export default router;

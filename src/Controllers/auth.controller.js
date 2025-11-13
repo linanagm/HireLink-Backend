@@ -1,8 +1,8 @@
 // src/Controllers/auth.controller.js
 import { userRegister, userLogin } from "../Services/auth.service.js";
-import { AUTH_MESSAGES  } from "../Utils/Constants/messages.js";
-import STATUS_CODES from "../Utils/Constants/statuscode.js";
-import { setTokenCookie , clearTokenCookie } from "../Utils/auth.utils.js";
+import { AUTH_MESSAGES  } from  "../Utils/constants/messages.js";
+import STATUS_CODES from "../Utils/constants/statuscode.js";
+import { setTokenCookie , clearTokenCookie } from "../Utils/token/token.utils.js";
 import { successResponse } from "../Utils/successResponse.utils.js";
 
 
@@ -11,10 +11,11 @@ import { successResponse } from "../Utils/successResponse.utils.js";
 export const register = async (req, res, next) => {
   
     const { user, token } = await userRegister(req.body);
+
+    //store token in cookie
     setTokenCookie(res, token);
-
-    successResponse({ res, statusCode:STATUS_CODES.CREATED , message:AUTH_MESSAGES.REGISTER_SUCCESS , data:user });
-
+    
+   return successResponse({ res, statusCode:STATUS_CODES.CREATED , message:AUTH_MESSAGES.REGISTER_SUCCESS , data:{ user, token} });
 };
 
 
@@ -23,14 +24,12 @@ export const register = async (req, res, next) => {
 // ✅ login
 export const login = async (req, res, next) => {
   
-    const { user, token } = await userLogin(req.body);
+    const { user, accessToken, refreshToken } = await userLogin(req.body);
 
-    setTokenCookie(res, token);
+    setTokenCookie(res, accessToken, refreshToken);
 
-    successResponse({ res, statusCode:STATUS_CODES.OK , message: AUTH_MESSAGES.LOGIN_SUCCESS , data:user });
 
-    res.status(200).json({ message: "Login successful ✅", user });
-  
+  return successResponse({ res, statusCode:STATUS_CODES.OK , message: AUTH_MESSAGES.LOGIN_SUCCESS , data:{ user, accessToken, refreshToken} });
 };
 
 
@@ -41,7 +40,7 @@ export const logout = async (req, res) => {
   
     clearTokenCookie(res);
 
-    successResponse({ res, statusCode : STATUS_CODES.OK , message: AUTH_MESSAGES.LOGOUT_SUCCESS});
+    return successResponse({ res, statusCode : STATUS_CODES.OK , message: AUTH_MESSAGES.LOGOUT_SUCCESS});
   
 };
 
@@ -54,7 +53,7 @@ export const getCurrentUser = async (req, res, next) => {
   
     const { id, name, email, role, phone } = req.user; // مفترض req.user موجود من verifyToken
   
-    successResponse({ 
+    return successResponse({ 
       res, 
       statusCode: STATUS_CODES.OK , 
       message:AUTH_MESSAGES.CURRENT_USER_SUCCESS , 
@@ -62,3 +61,5 @@ export const getCurrentUser = async (req, res, next) => {
 });
   
 };
+
+                                   /*************************************************************************** */

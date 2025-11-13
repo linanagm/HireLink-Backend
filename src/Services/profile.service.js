@@ -10,36 +10,12 @@ export const getProfileByUserIdService = async (userId) => {
   const profile = await prisma.profile.findUnique({
 
     where: { userId },
-    select: {
-
-      id: true,
-      title: true,
-      bio: true,
-      education: true,
-      
-      profilePictureUrl: true,
-      githubUrl: true,
-      linkedinUrl: true,
-      experiences: {
-
-        select: { id: true, company: true, location: true, startDate: true, endDate: true, description: true,},
-      },
-      skills: {
-        select : { id: true, name: true, level: true },
-      },
-      languages: {
-        select : { id: true, name: true, level: true },
-      },
-      certifications: {
-        select : { id: true, name: true, issuer: true, date: true },
-      },
-      user: { 
-        select: {id: true, name: true, email: true, phone: true } },
-
-    },
-    
-  });
-
+    include: {
+      user: {
+         select: {  name: true, email: true, phone: true } },
+    }
+  
+  })
   if (!profile) throw new ServiceError("Profile not found", 404);
   
   return profile;
@@ -63,26 +39,37 @@ export const createOrUpdateProfileService = async (userId, profileData, name) =>
 
   }
 
+  //create or update profile
   const existingProfile = await prisma.profile.findUnique({ where: { userId } });
+
+  let updatedProfile;
 
   if (existingProfile) {
 
-    return await prisma.profile.update({
+    updatedProfile = await prisma.profile.update({
     
         where: { userId },
     
         data: profileData,
-    });
-  
-} else {
+    }); 
 
-    return await prisma.profile.create({
+    }else {
+      updatedProfile = await prisma.profile.create({
 
         data: { ...profileData, userId },
+      })
+    }
 
+    //return both user + profile
+    const userWithProfile = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { profile: true },
     });
-  }
-};
+
+    return userWithProfile;
+}
+
+   
 
 
                                   /**************************************************************************/

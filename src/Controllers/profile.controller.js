@@ -1,9 +1,12 @@
 import { profileSchema } from "../Validation/profile.validation.js";
-//import { getProfileByUserIdService, createOrUpdateProfileService } from "../Services/profile.service.js";
+
 import { successResponse } from "../Utils/successResponse.utils.js";
-import { PROFILE_MESSAGES } from "../Utils/Constants/messages.js";
-import  STATUS_CODES  from "../Utils/Constants/statuscode.js"
+
+import { PROFILE_MESSAGES } from  "../Utils/constants/messages.js";
+
+import  STATUS_CODES  from "../Utils/constants/statuscode.js"
 import * as profileServices from "../Services/profile.service.js"
+import { ServiceError } from "../Utils/serviceError.utils.js";
 
 
 // GET /profile
@@ -15,11 +18,15 @@ export const getUserProfile = async (req, res, next) => {
     const profile = await profileServices.getProfileByUserIdService(req.user.id);
 
 
-    successResponse({ 
+    return successResponse({ 
       res, 
       statusCode: STATUS_CODES.OK , 
       message: PROFILE_MESSAGES.FETCH_SUCCESS, 
-      data: profile });
+      data:{
+        name: profile.user.name,
+        ...profile
+
+      } });
   
 };
 
@@ -30,21 +37,19 @@ export const updateUserProfile = async (req, res, next) => {
   
     const { error } = profileSchema.validate(req.body);
 
-    if (error) throw new Error(error.details[0].message); 
-
+    if (error) throw new ServiceError(error.message, STATUS_CODES.BAD_REQUEST);
+    
     const { name, ...profileData } = req.body; //...destruct
     
     const updatedProfile = await profileServices.createOrUpdateProfileService(req.user.id, profileData, name);
 
-    successResponse({ res, statusCode: STATUS_CODES.OK, message: PROFILE_MESSAGES.UPDATE_SUCCESS, data: updatedProfile });
+    return successResponse({ res, statusCode: STATUS_CODES.OK, message: PROFILE_MESSAGES.UPDATE_SUCCESS, data: updatedProfile });
   
 };
 
                                                 /*************************************************************************************/
                                         
 // PATCH /profile/avatar
-//PATCH/profile/avatar
-
 
 export const uploadProfileImage = async (req, res, next) => { 
 

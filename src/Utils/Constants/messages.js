@@ -50,3 +50,14 @@ export const USER_MESSAGES = {
   FETCH_SUCCESS: "User details fetched successfully 👤",
   NOT_FOUND: "User not found",
 };
+
+export const AUTH_MESSAGE = {
+  REGISTER_SUCCESS: "User registered successfully ✅",
+  LOGIN_SUCCESS: "Login successful ✅",
+  LOGOUT_SUCCESS: "Logged out successfully 🚪",
+  CURRENT_USER_SUCCESS: "Current user details fetched successfully",
+  EMAIL_EXISTS: "Email already exists",
+  USER_NOT_FOUND: "User not found",
+  INVALID_PASSWORD: "Invalid password",
+  INVALID_TOKEN: "Invalid token",
+}

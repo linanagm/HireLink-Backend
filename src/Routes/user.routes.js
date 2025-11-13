@@ -1,8 +1,6 @@
 import { Router } from "express";
-
-import { cloudFileUpload } from "../Utils/multer/cloud.multer.js";
 import { fileValidation, localFileUpload } from "../Utils/multer/local.multer.js";
-import  verifyToken  from "../Middlewares/verifyToken.js";
+import { authentication  , tokenTypeEnum} from "../Middlewares/authentication.middleware.js";
 
 import * as userController from "../Controllers/user.controller.js";
 

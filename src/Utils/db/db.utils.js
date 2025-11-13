@@ -1,6 +1,6 @@
-import { prisma } from "../../prisma/client.js"
-import { COMMON_MESSAGES } from "./Constants/messages.js";
-import STATUS_CODES from "./Constants/statuscode.js";
+import { prisma } from "../../../prisma/client.js"
+import { COMMON_MESSAGES } from "../Constants/messages.js";
+import STATUS_CODES from "../Constants/statuscode.js";
 
 
 

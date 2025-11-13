@@ -1,9 +1,11 @@
-import STATUS_CODES from "./Constants/statuscode.js";
+import STATUS_CODES from "./constants/statuscode.js";
 
 // Class Error موحد للتعامل مع كل الأخطاء
 export class ServiceError extends Error {
-  constructor(message, statusCode = STATUS_CODES.BAD_REQUEST) {
+  constructor(message, statusCode = 400,errors = []) {
     super(message);
+    this.statusCode = statusCode;//lina
+    this.errors = Array.isArray(errors) ? errors : [errors];//lina
     this.statusCode = statusCode;
   }
 }

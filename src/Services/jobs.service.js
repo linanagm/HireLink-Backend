@@ -1,6 +1,6 @@
 import { prisma } from "../../prisma/client.js";
-import { createRecord, getById, checkOwnership } from "../Utils/db.utils.js";
-import STATUS_CODES from "../Utils/Constants/statuscode.js";
+import { createRecord, getById, checkOwnership } from "../Utils/DB/db.utils.js";
+import STATUS_CODES from "../Utils/constants/statuscode.js";
 import { JOBS_MESSAGES } from "../Utils/Constants/messages.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 
@@ -49,8 +49,8 @@ export const getJobByIdService = async (id) => {
 // ======================
 export const getAllJobsService = async (params) => {
   const { page, limit, search, ...filterParam } = params;
-  const { skip, take } = require("../Utils/pagination.utils.js").getPagination(page, limit);
-  const filters = require("../Utils/filters.utils.js").buildFilters(filterParam, {
+  const { skip, take } = require("../Utils/DB/pagination.utils.js").getPagination(page, limit);
+  const filters = require("../Utils/DB/filters.utils.js").buildFilters(filterParam, {
     numericFields: ["companyId", "salaryRange"],
     booleanFields: ["isRemote"]
   });

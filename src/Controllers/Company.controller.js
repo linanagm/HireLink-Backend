@@ -2,7 +2,7 @@ import * as companyServices from "../Services/company.service.js";
 import { COMPANY_MESSAGES} from "../Utils/Constants/messages.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 import {successResponse} from "../Utils/successResponse.utils.js";
-import STATUS_CODES from "../Utils/Constants/statuscode.js";
+import STATUS_CODES from "../Utils/constants/statuscode.js";
 
 
 
@@ -15,11 +15,14 @@ export const createOrUpdateCompany = async (req, res, next) => {
 
   const company = await companyServices.createOrUpdateCompanyService(req.user.id, req.user.role, companyData);
 
-  successResponse({
+  return successResponse({
     res,
     statusCode: STATUS_CODES.CREATED,
     message: COMPANY_MESSAGES.CREATE_OR_UPDATE_SUCCESS,
-    data: company
+    data: {
+      ...company,
+      name: company.companyName
+    }
   });
  
       
@@ -39,7 +42,7 @@ export const getCompanyById = async (req, res) => {
   
   const company = await companyServices.getCompanyByIdService(companyId);
 
-  successResponse({
+  return successResponse({
     res,
     statusCode: STATUS_CODES.OK,
     message: COMPANY_MESSAGES.GET_SUCCESS,
@@ -60,18 +63,23 @@ export const updateCompanyLogo = async (req, res, next) => {
       
       
       if (!imagePath) {
-          return res.status(400).json({
-              success: false,
-              message: "No image uploaded"
-          })
+        throw new ServiceError("No image uploaded", STATUS_CODES.BAD_REQUEST);
+
+          // return res.status(400).json({
+          //     success: false,
+          //     message: "No image uploaded"
+          // })
       }
   
       //save image in db
       const result = await companyServices.updateCompanyLogoService(userId, imagePath);
       
       
-      if (!result.success) return res.status(500).json(result);
-  
+      //if (!result.success) return res.status(500).json(result);
+      //if (!result.success) throw new ServiceError(result.message, STATUS_CODES.INTERNAL_SERVER_ERROR);
+
+     //Note -lina -> we donot need to return res.status(500).json(result) because express 5 handle this error built in
+
       return successResponse ({ 
           res, 
           statusCode: 200, 

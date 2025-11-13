@@ -1,7 +1,7 @@
 import { successResponse } from "../Utils/successResponse.utils.js";
 import * as jobsService from "../Services/jobs.service.js";
-import STATUS_CODES from "../Utils/Constants/statuscode.js";
-import { JOBS_MESSAGES, COMMON_MESSAGES } from "../Utils/Constants/messages.js";
+import STATUS_CODES from  "../Utils/constants/statuscode.js";
+import { JOBS_MESSAGES, COMMON_MESSAGES } from  "../Utils/constants/messages.js";
 import { jobSchemaValidation } from "../Validation/jobs.validation.js";
 
 // إنشاء وظيفة

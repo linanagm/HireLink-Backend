@@ -1,22 +1,24 @@
 import express from "express";
 import * as profileController from "../Controllers/profile.controller.js";
-//import { getUserProfile, updateUserProfile, uploadProfilePhoto } from "../Controllers/profile.controller.js";
-import verifyToken from "../Middlewares/verifyToken.js";
+import {authentication , tokenTypeEnum} from "../Middlewares/authentication.middleware.js"
 import { fileValidation, localFileUpload } from "../Utils/multer/local.multer.js";
 const router = express.Router();
 
 //get profile
-router.get("/", verifyToken, profileController.getUserProfile);
+//test -> done
+router.get("/", authentication({ tokenType : tokenTypeEnum.access}), profileController.getUserProfile);
 
 //update profile
-router.put("/", verifyToken, profileController.updateUserProfile);
+//test -> done
+router.put("/", authentication({ tokenType : tokenTypeEnum.access}), profileController.updateUserProfile);
 
 //upload profile photo
+//test -> done
 router.patch(
 
     "/avatar", 
 
-    verifyToken,
+    authentication({ tokenType : tokenTypeEnum.access}),
 
     localFileUpload({ 
         customPath: "profile" , 
@@ -26,5 +28,6 @@ router.patch(
     profileController.uploadProfileImage
     
 );
+
 
 export default router;

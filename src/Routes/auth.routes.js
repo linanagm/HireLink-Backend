@@ -1,22 +1,26 @@
 import { Router } from "express";
-import { register, login, logout, getCurrentUser } from "../Controllers/auth.controller.js";
+import * as authController from "../Controllers/auth.controller.js";
 import { registerSchema, loginSchema } from "../Validation/auth.validation.js";
 import { validateBody } from "../Middlewares/validate.middleware.js";
-import  verifyToken  from "../Middlewares/verifyToken.js";
+import {authentication,  tokenTypeEnum }  from "../Middlewares/authentication.middleware.js";
 
 const router = Router();
 
 // تسجيل مستخدم جديد
-router.post("/register", validateBody(registerSchema), register);
+// test -> done
+router.post("/register", validateBody(registerSchema), authController.register);
 
 // تسجيل دخول
-router.post("/login", validateBody(loginSchema), login);
+//test -> done
+router.post("/login", validateBody(loginSchema), authController.login);
 
 //user logout 
-router.post("/logout", verifyToken ,logout);
+//test -> done
+router.post("/logout", authentication({ tokenType : tokenTypeEnum.access}) ,authController.logout);
 
 // GET /auth/me - معلومات المستخدم الحالي 
-router.get("/me", verifyToken, getCurrentUser);
+//test -> done
+router.get("/me", authentication ({ tokenType : tokenTypeEnum.access}), authController.getCurrentUser);
 
 
 export default router;

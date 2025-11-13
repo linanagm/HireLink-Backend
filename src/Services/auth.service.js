@@ -1,9 +1,11 @@
-import { hash, compare } from "../Utils/hash.utils.js";
+/*____________________________________________________________ Lina _________________________________________________________________________ */
+
+import { hash, compare } from "../Utils/hashing/hash.utils.js";
 import prisma from "../../prisma/client.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
-import { generateToken } from "../Utils/auth.utils.js";
-import { AUTH_MESSAGES } from "../Utils/Constants/messages.js";
-import STATUS_CODES from "../Utils/Constants/statuscode.js";
+import { generateToken, getSignatureRole } from "../Utils/token/token.utils.js";
+import { AUTH_MESSAGES } from "../Utils/constants/messages.js";
+import STATUS_CODES from "../Utils/constants/statuscode.js";
 
 
 
@@ -16,6 +18,8 @@ export const userRegister = async ({ name, email, password, phone, role }) => {
 
   const hashedPassword = await hash({ plainText: password });
 
+
+  
   const newUser = await prisma.user.create({
     data: { name, email, password: hashedPassword, phone, role },
     select: {
@@ -30,7 +34,22 @@ export const userRegister = async ({ name, email, password, phone, role }) => {
     },
   });
 
-  const token = generateToken({ id: newUser.id, role: newUser.role });
+  
+  let signature = await getSignatureRole(newUser.role);
+  console.log(signature);
+  
+  //generate token
+  const token = generateToken({
+     payload :{_id: newUser.id}, 
+     signature: signature.accessSignature ,
+    options: { 
+      expiresIn: "1d",
+      issuer: "hireLink platform",
+      subject: "Authentication"
+    },
+     
+      
+    });
 
   return { user: newUser, token };
 };
@@ -39,7 +58,7 @@ export const userRegister = async ({ name, email, password, phone, role }) => {
 
                            /***********************************************************************/
 
-// ✅ login service
+// ✅ login service -> have to enter Applicant ot company or admin + token in authorization in heasers on postman
 export const userLogin = async ({ email, password }) => {
 
   const user = await prisma.user.findUnique({
@@ -57,17 +76,50 @@ export const userLogin = async ({ email, password }) => {
     },
   });
 
+  //check if user exists
   if (!user) throw new ServiceError( AUTH_MESSAGES.USER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
+  //check if password is correct
   const isMatch = await compare({ plainText: password, hash: user.password });
+
+  //if password is not correct
   if (!isMatch) throw new ServiceError("Invalid password", 401);
 
-  const token = generateToken({ id: user.id, email: user.email, role: user.role });
+  let signature = await getSignatureRole(user.role);
+  //generate token
+  const accessToken = generateToken({
+     
+    payload :{_id: user.id}, 
 
-  // نحذف كلمة السر قبل الإرجاع
+    signature: signature.accessSignature,
+
+    options: { 
+
+      expiresIn: "1d",
+      issuer: "hireLink platform",
+      subject: "Authentication"
+    
+    },
+     
+    });
+
+    //generate refresh token
+    const refreshToken = generateToken({
+     payload :{_id: user.id}, 
+     signature: signature.refreshSignature,
+    options: { 
+      expiresIn: "7d",
+      issuer: "hireLink platform",
+      subject: "Authentication"
+    },
+      
+    });
+
+
+  // delete user password before returning
   delete user.password;
 
-  return { user, token };
+  return { user, accessToken, refreshToken };
 };
 
 
