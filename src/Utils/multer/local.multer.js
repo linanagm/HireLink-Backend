@@ -9,12 +9,12 @@ export const fileValidation = {
     audio : ["audio/mpeg", "audio/ogg", "audio/webm"],
     documents : [
         "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "application/vnd.ms-powerpoint",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        // "application/msword",
+        // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        // "application/vnd.ms-excel",
+        // "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        // "application/vnd.ms-powerpoint",
+        // "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     ]
 
 
@@ -53,7 +53,7 @@ export const localFileUpload = ( {customPath = "general" , validation = []} ) =>
 
 
     const fileFilter = (req, file, cb) => {
-        if(["image/png", "image/jpeg", "image/jpg"].includes(file.mimetype)){
+        if(["image/png", "image/jpeg", "image/jpg", "application/pdf"].includes(file.mimetype)){
 
             cb(null, true);
         

@@ -3,6 +3,10 @@ import * as jobsService from "../Services/jobs.service.js";
 import STATUS_CODES from  "../Utils/constants/statuscode.js";
 import { JOBS_MESSAGES, COMMON_MESSAGES } from  "../Utils/constants/messages.js";
 import { jobSchemaValidation } from "../Validation/jobs.validation.js";
+import { ServiceError } from "../Utils/serviceError.utils.js";
+
+
+//CRUD operation => create - read - update - delete
 
 // إنشاء وظيفة
 export const createJob = async (req, res, next) => {
@@ -22,91 +26,110 @@ export const createJob = async (req, res, next) => {
   }
 };
 
+
 // تعديل وظيفة
 export const updateJobById = async (req, res, next) => {
-  try {
-    const job = await jobsService.updateJobByIdService(req.params.id, req.user.id, req.body);
-    if (!job) throw new Error(JOBS_MESSAGES.NOT_FOUND);
+  
+    const updatedJob = await jobsService.updateJobByIdService(req.params.id, req.user.id, req.body);
+    
+    if (!updatedJob) throw new Error(JOBS_MESSAGES.NOT_FOUND);
     
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
       message: JOBS_MESSAGES.UPDATE_SUCCESS,
-      data: job,
+      data: {job:updatedJob},
     });
-  } catch (err) {
-    next(err);
-  }
+  
 };
+
 
 // حذف وظيفة
 export const deleteJob = async (req, res, next) => {
-  try {
-    await jobsService.deleteJobService(req.params.id, req.user.id);
-    return successResponse({
-      res,
-      statusCode: STATUS_CODES.OK,
-      message: JOBS_MESSAGES.DELETE_SUCCESS,
-    });
-  } catch (err) {
-    next(err);
-  }
+   
+  const jobId = Number(req.params.id);
+  
+  if (isNaN(jobId)) throw new ServiceError("ID must be a number", STATUS_CODES.BAD_REQUEST);
+      
+  const message = await jobsService.deleteJobService(jobId, req.user.id);
+    
+      return successResponse({
+        res,
+        statusCode: STATUS_CODES.OK,
+        message: message,
+      });  
+     
 };
+
+
 
 // جلب وظيفة واحدة
 export const getJobById = async (req, res, next) => {
-  try {
+  
     const job = await jobsService.getJobByIdService(req.params.id);
-    if (!job) throw new Error(JOBS_MESSAGES.NOT_FOUND);
+
+    if (!job) throw new ServiceError(JOBS_MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
       message: JOBS_MESSAGES.FETCH_SUCCESS,
-      data: job,
+      data: {job: job},
     });
-  } catch (err) {
-    next(err);
-  }
+  
 };
 
 // جلب كل الوظائف
 export const getAllJobs = async (req, res, next) => {
-  try {
+  
     const jobs = await jobsService.getAllJobsService(req.query);
+    if(!jobs) throw new ServiceError(JOBS_MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
       message: JOBS_MESSAGES.ALL_FETCH_SUCCESS,
       data: jobs,
     });
-  } catch (err) {
-    next(err);
-  }
+  
 };
+
+
+
 
 // تقديم على وظيفة
 export const applyForJob = async (req, res, next) => {
   try {
-    const cvUrl = req.file ? req.file.path : null;
-    if (!cvUrl) throw new Error("CV file is required");
 
-    const application = await jobsService.applyForJobService(req.params.id, req.user.id, cvUrl);
+    // Check if CV file is uploaded
+    const cvUrl = req.file ? req.file.finalPath : null;
+    const jobId = req.params.id;
+    const applicantId = req.user.id;
+    //const prismaReq = req.prisma;
+    
+    const application = await jobsService.applyForJobService(jobId, applicantId, cvUrl);
+    
     return successResponse({
       res,
       statusCode: STATUS_CODES.CREATED,
       message: JOBS_MESSAGES.APPLICATION_SUCCESS,
       data: application,
     });
+
   } catch (err) {
     next(err);
   }
 };
 
+//for company only ?
 // عرض المتقدمين لوظيفة
 export const getApplicantsByJobId = async (req, res, next) => {
   try {
-    const applicants = await jobsService.getApplicantsByJobIdService(req.params.id, req.user.id);
+    const companyId = req.user.id;
+    const jobId = req.params.id;
+    const role = req.user.role;
+
+    const applicants = await jobsService.getApplicantsByJobIdService(jobId, companyId, role);
+
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,
@@ -117,12 +140,17 @@ export const getApplicantsByJobId = async (req, res, next) => {
     next(err);
   }
 };
-
+ 
+//for company only
 // تعديل حالة الطلب
 export const updateApplicationStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const updated = await jobsService.updateApplicationStatusService(req.params.id, status);
+    const applicationId = req.params.id;
+    const companyId = req.user.id;
+
+    const updated = await jobsService.updateApplicationStatusService(applicationId, status);
+
     return successResponse({
       res,
       statusCode: STATUS_CODES.OK,

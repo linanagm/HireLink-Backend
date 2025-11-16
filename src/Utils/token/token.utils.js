@@ -1,10 +1,11 @@
 // src/Utils/auth.utils.js
 import jwt from "jsonwebtoken";
 import { ServiceError } from "../serviceError.utils.js";
+import STATUS_CODES from "../constants/statuscode.js";
 
 //generate token
 export const generateToken = ({ payload, signature, options = {} }) => {
-  if (!signature) throw new Error("JWT signature is required");
+  if (!signature) throw new ServiceError("JWT signature is required" , STATUS_CODES.BAD_REQUEST);
 
   return jwt.sign(payload, signature, {
     expiresIn: options.expiresIn || "1d",
@@ -15,7 +16,7 @@ export const generateToken = ({ payload, signature, options = {} }) => {
 
 
 
-/**************************** verifyToken ******************************************/
+/**************************** verifyToken ******************************************/ 
 export const verifyToken = ({
   token = "",
   signature,

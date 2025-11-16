@@ -34,6 +34,13 @@ enum LanguageLevel {
   NATIVE
 }
 
+enum NotificationType {
+  APPLICATION
+  ACCEPTANCE
+  REGISTERATION
+  GENERAL
+}
+
 // === Users ===
 model User {
   id            Int          @id @default(autoincrement())
@@ -45,6 +52,7 @@ model User {
   isActive      Boolean      @default(true)
   emailVerified Boolean      @default(false)
   createdAt     DateTime     @default(now())
+
 
   // === Company Fields (only if role = COMPANY) ===
   companyName     String?
@@ -59,7 +67,7 @@ model User {
   profile        Profile?        
   jobs           Job[]           @relation("CompanyJobs")
   applications   Application[]   
-  notifications Notification[]
+  notifications Notification[] @relation("UserReceivedNotification")
 
 }
 
@@ -172,10 +180,17 @@ model AdminStats {
 model Notification {
   id        Int      @id @default(autoincrement())
   message   String
+  type      NotificationType  //'application' , 'acceptance' , 'registeration'
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  //المستلم -> applicant or company
+  recipientId  Int
+  recipient    User @relation("UserReceivedNotification",fields: [recipientId], references: [id])
+
+  //المرسل
+  senderId Int? //applicant or company or admin
+  
 }
 

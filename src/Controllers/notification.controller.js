@@ -1,12 +1,14 @@
 import {
   getNotificationsForUser,
   markNotificationAsRead,
-  createNotification,
+  
 } from "../Services/notification.service.js";
 
 // ✅ جلب كل الإشعارات للمستخدم الحالي
 export const fetchNotifications = async (req, res) => {
+  
   const userId = req.user.id; // المفروض الـ token فيه id المستخدم
+  
   const notifications = await getNotificationsForUser(userId);
 
   res.status(200).json({

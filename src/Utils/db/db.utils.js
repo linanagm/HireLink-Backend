@@ -3,7 +3,7 @@ import { COMMON_MESSAGES } from "../Constants/messages.js";
 import STATUS_CODES from "../Constants/statuscode.js";
 
 
-
+//import prisma from "@prisma/client";
 
 //create record in database
 export const createRecord = async (model, data) => {
@@ -52,18 +52,18 @@ export const getById = async ({ model, id, include = {}, resourceName = "Resourc
  * @param {number|string} userId - Current user ID
  */
 
-export const checkOwnership = (record, userIdField, userId) => {
+// export const checkOwnership = (record, userIdField, userId) => {
 
-    //if (!record) throw new Error(COMMON_MESSAGES.UNAUTHORIZED , STATUS_CODES.FORBIDDEN);
-    if (!record) {
-        const error = new Error(COMMON_MESSAGES.UNAUTHORIZED);
-        error.status = STATUS_CODES.FORBIDDEN;
-        throw error;
-    }
-    console.log(record[userIdField], "*" , userId );
+//     //if (!record) throw new Error(COMMON_MESSAGES.UNAUTHORIZED , STATUS_CODES.FORBIDDEN);
+//     // if (!record) {
+//     //     const error = new Error(COMMON_MESSAGES.UNAUTHORIZED);
+//     //     error.status = STATUS_CODES.FORBIDDEN;
+//     //     throw error;
+//     // }
+//     //console.log(record[userIdField], "*" , userId );
     
-    if (Number(record[userIdField]) !== Number(userId)) throw new Error(COMMON_MESSAGES.UNAUTHORIZED , STATUS_CODES.FORBIDDEN);
+//     if (Number(record[userIdField]) !== Number(userId)) throw new Error(COMMON_MESSAGES.UNAUTHORIZED , STATUS_CODES.FORBIDDEN);
 
-};
+// };
 
 
