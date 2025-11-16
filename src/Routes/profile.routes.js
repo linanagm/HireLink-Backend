@@ -14,6 +14,8 @@ router.get(
     authorization({accessRole : [Role.APPLICANT , Role.COMPANY , Role.ADMIN]}),
     profileController.getUserProfile);
 
+
+
 //update profile
 //test -> done
 //protected -> accessable only by authenticated APPLICANT, Company, Admin
@@ -23,21 +25,20 @@ router.put(
     authorization({accessRole : [Role.APPLICANT , Role.COMPANY , Role.ADMIN]}),
     profileController.updateUserProfile);
 
+
+
 //upload profile photo
 //test -> done
 //protected -> accessable only by authenticated APPLICANT
 router.patch(
 
     "/avatar", 
-
     authentication({ tokenType : tokenTypeEnum.access}),
     authorization({accessRole : [Role.APPLICANT]}),
-
     localFileUpload({ 
         customPath: "profile" , 
         validation : [...fileValidation.images]
     }).single("image"),
-    
     profileController.uploadProfileImage
     
 );

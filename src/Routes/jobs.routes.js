@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {authentication , authorization, tokenTypeEnum} from "../Middlewares/authentication.middleware.js";
-import { upload } from "../Middlewares/uploadCV.js";
+//import { upload } from "../Middlewares/uploadCV.js";
 import { 
   createJob, 
   deleteJob, 
@@ -14,7 +14,11 @@ import {
 import { Role } from "@prisma/client";
 import { fileValidation, localFileUpload } from "../Utils/multer/local.multer.js";
 
+
+
 const router = Router();
+
+
 
 /********************************************************** JOBS *********************************************************************/
 // =====================
@@ -117,10 +121,7 @@ router.patch(
 router.post(
   "/:id/apply", 
   authentication({ tokenType : tokenTypeEnum.access}),
-   
   authorization({accessRole : [Role.APPLICANT]}),
-  //upload.single("cv"), 
-
   localFileUpload({
     customPath: "cv",
     validation : fileValidation.documents

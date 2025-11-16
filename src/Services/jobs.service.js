@@ -1,12 +1,12 @@
 import { prisma } from "../../prisma/client.js";
-import { createRecord, getById } from "../Utils/db/db.utils.js";
+//import { createRecord, getById } from "../Utils/db/db.utils.js";
 import STATUS_CODES from "../Utils/constants/statuscode.js";
 import { JOBS_MESSAGES } from "../Utils/constants/messages.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 import {getPagination } from "../Utils/db/pagination.utils.js"
 import { buildFilters } from "../Utils/db/filters.utils.js";
 import { createNotification } from "../Utils/notifications/notifications.utils.js";
-import { NotificationType } from "@prisma/client";
+
 
 
 // ======================
@@ -18,20 +18,25 @@ export const createJobService = async (userId, jobData) => {
   
   if (!company) throw new ServiceError(JOBS_MESSAGES.ONLY_COMPANY_CAN_CREATE_JOB,  STATUS_CODES.FORBIDDEN );
   
-  return createRecord("job", { ...jobData, companyId: company.id });
+  const createdJob = await prisma.job.create({ data: { ...jobData, companyId: company.id } });
+  
+  return createdJob;
+  //return createRecord("job", { ...jobData, companyId: company.id });
 };
+
+
 
 // ======================
 // تعديل وظيفة
 // ======================
 export const updateJobByIdService = async (jobId, userId, jobData) => {
   
-  const job = await getById({ 
-    model: prisma.job, 
-    id: jobId, 
-    include: { company: true }, 
-    resourceName: "Job" 
+  //check if job exist
+  const job = await prisma.job.findUnique({ 
+    where: { id: Number(jobId) }, 
+    include: { company: true } 
   });
+  
 
   if (!job) throw new ServiceError(JOBS_MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
   
@@ -46,6 +51,9 @@ export const updateJobByIdService = async (jobId, userId, jobData) => {
   return updatedJob; 
 };
 
+
+
+
 // ======================
 // حذف وظيفة
 // ======================
@@ -58,7 +66,6 @@ export const deleteJobService = async (jobId, userId) => {
     include: { company: true }, //ensure relation exists in prisma schema 
   });
 
-  console.log("job found : " ,job);
   
  
   //check if job exist
@@ -74,6 +81,8 @@ export const deleteJobService = async (jobId, userId) => {
  
   return JOBS_MESSAGES.DELETE_SUCCESS; //return success message
 };
+
+
 
 
 // ======================
