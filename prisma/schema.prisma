@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
- // output   = "../src/generated/prisma"
+ output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -13,6 +13,15 @@ enum Role {
   APPLICANT
   COMPANY
   ADMIN
+}
+
+
+enum CompanyMemberRole {
+  OWNER
+  ADMIN
+  EMPLOYEE
+  RECRUITER
+  HR
 }
 
 enum ApplicationStatus {
@@ -53,53 +62,129 @@ model User {
   emailVerified Boolean      @default(false)
   createdAt     DateTime     @default(now())
 
-
-  // === Company Fields (only if role = COMPANY) ===
-  companyName     String?
-  industry        String?
-  website         String?
-  logoUrl         String?
-  description     String?
-  location        String?
-  establishedAt   DateTime?
-
+  
   // Relations
-  profile        Profile?        
-  jobs           Job[]           @relation("CompanyJobs")
-  applications   Application[]   
-  notifications Notification[] @relation("UserReceivedNotification")
+  profile       Profile?
+  applications  Application[]
+  //notifications Notification[]
+  notificationSent Notification[] @relation("UserSentNotification")
+  notificationReceived Notification[] @relation("UserReceivedNotification")
+  ownedCompany Company[] @relation("CompanyOwner")
+  // company memberships (user can belong to multiple companies)
+  companyMemberships CompanyMember[]
+  
+}
+
+// === Company (separate entity) ===
+model Company {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  industry      String?
+  location      String?
+  website       String?
+  logoUrl       String?
+  establishedAt DateTime?
+
+  // optional owner reference (if owner user deleted, set null)
+  ownerId       Int?    
+  owner         User?   @relation( "CompanyOwner", fields:[ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  // relations
+  members       CompanyMember[]
+  jobs          Job[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([name])
+}
+
+
+// == Company Members ====
+model CompanyMember {
+  id             Int       @id @default(autoincrement())
+  company        Company   @relation(fields: [companyId] , references: [id])
+  companyId      Int
+  user            User     @relation(fields: [userId] , references : [id])
+  userId          Int
+  role            CompanyMemberRole @default(RECRUITER)
+  joinedAt        DateTime   @default(now())
+
+  @@unique([companyId , userId])
+  @@index([userId])
+  @@index([companyId])
+ // @@index([profileId])
 
 }
+
+
 
 // === Profile (applicant CV) ===
 model Profile {
   id               Int       @id @default(autoincrement())
+  
   user             User      @relation(fields: [userId], references: [id])
   userId           Int       @unique
+  
   title            String?   
   bio              String?   
   education        String?   
   resumeUrl        String?   
-  profilePictureUrl String? 
+  profilePictureUrl   String? 
   githubUrl        String?   
   linkedinUrl      String?   
   birthDate        DateTime? 
+  
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
   experiences      Experience[]
-  skills           Skill[]
-  languages        Language[]
+  profileSkills    ProfileSkill[]
+  profileLanguages ProfileLanguage[]
   certifications   Certification[]
 }
 
 // === Skills ===
-model Skill {
-  id        Int        @id @default(autoincrement())
-  name      String
-  level     SkillLevel?
-  profile   Profile    @relation(fields: [profileId], references: [id])
+
+model SkillMaster {
+  id Int @id @default(autoincrement())
+  name String @unique
+
+  profileSkills ProfileSkill[]
+}
+
+model ProfileSkill {
+  id Int @id @default(autoincrement())
+  profile   Profile  @relation(fields: [profileId] , references : [id])
   profileId Int
+  skill  SkillMaster  @relation(fields: [skillId], references : [id])
+  skillId   Int
+  level   SkillLevel?
+
+  @@unique([profileId , skillId])
+  @@index([skillId])
+
+}
+
+// === Languages ===
+
+model LanguageMaster {
+  id    Int @id @default(autoincrement())
+  name  String  @unique
+  profileLanguages ProfileLanguage[]
+}
+
+model ProfileLanguage {
+  id        Int          @id @default(autoincrement())
+  profile   Profile      @relation(fields: [profileId], references: [id])
+  profileId Int
+  language LanguageMaster @relation(fields: [languageId], references: [id])
+  languageId Int
+  level LanguageLevel?
+
+  @@unique([profileId, languageId])
+  @@index([languageId])
 }
 
 // === Experience ===
@@ -115,14 +200,6 @@ model Experience {
   profileId   Int
 }
 
-// === Languages ===
-model Language {
-  id        Int          @id @default(autoincrement())
-  name      String
-  level     LanguageLevel?
-  profile   Profile      @relation(fields: [profileId], references: [id])
-  profileId Int
-}
 
 // === Certifications ===
 model Certification {
@@ -140,16 +217,24 @@ model Job {
   id              Int           @id @default(autoincrement())
   title           String
   description     String
-  location        String?       
+  requirements    String?
+  location        String?
+
   salaryRange     Int?       
   isRemote        Boolean?      
   category        String?       
   experienceLevel String?       
-  company         User          @relation(fields: [companyId], references: [id], name: "CompanyJobs")
+  
   companyId       Int
+  company         Company         @relation(fields: [companyId], references: [id])
+  
   applications    Application[]
+  
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([companyId])
+  @@index([title])
 }
 
 // === Applications (job applications) ===
@@ -165,6 +250,10 @@ model Application {
   interviewDate DateTime?       
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
+
+  @@index([jobId])
+  @@index([applicantId])
+
 }
 
 // === Admin Stats ===
@@ -181,16 +270,17 @@ model Notification {
   id        Int      @id @default(autoincrement())
   message   String
   type      NotificationType  //'application' , 'acceptance' , 'registeration'
+
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   
+  senderId   Int?
+  sender     User? @relation("UserSentNotification", fields: [senderId], references: [id])
   //المستلم -> applicant or company
   recipientId  Int
   recipient    User @relation("UserReceivedNotification",fields: [recipientId], references: [id])
 
-  //المرسل
-  senderId Int? //applicant or company or admin
+
   
 }
 
