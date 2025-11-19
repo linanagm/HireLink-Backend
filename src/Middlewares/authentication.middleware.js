@@ -2,7 +2,7 @@
 import { verifyToken } from "../Utils/token/token.utils.js";
 import { getSignatureRole } from "../Utils/token/token.utils.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
-import prisma from "../../prisma/client.js";
+import prisma from "../Config/client.js";
 import STATUS_CODES from "../Utils/constants/statuscode.js";
 //import { verify } from "jsonwebtoken";
 

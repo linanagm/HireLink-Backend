@@ -1,5 +1,5 @@
 // src/Services/profile.service.js
-import prisma from "../../prisma/client.js";
+import prisma from "../Config/client.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 
 

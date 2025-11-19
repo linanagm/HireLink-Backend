@@ -1,4 +1,4 @@
-import { prisma } from "../../../prisma/client.js";
+import { prisma } from "../../Config/client.js";
 
 export const createNotification = async (  recipientId, message, type = "GENERAL", senderId) => {
   

@@ -1,7 +1,7 @@
-import prisma from "../../prisma/client.js";
+import prisma from "../Config/client.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 import STATUS_CODES from "../Utils/constants/statuscode.js";
-import { COMPANY_MESSAGES } from "../Utils/Constants/messages.js";
+import { COMPANY_MESSAGES } from "../Utils/constants/messages.js";
 
 
 

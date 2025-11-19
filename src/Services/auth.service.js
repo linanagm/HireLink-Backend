@@ -1,7 +1,7 @@
 /*____________________________________________________________ Lina _________________________________________________________________________ */
 
 import { hash, compare } from "../Utils/hashing/hash.utils.js";
-import prisma from "../../prisma/client.js";
+import prisma from "../Config/client.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
 import { generateToken, getSignatureRole } from "../Utils/token/token.utils.js";
 import { AUTH_MESSAGES } from "../Utils/constants/messages.js";

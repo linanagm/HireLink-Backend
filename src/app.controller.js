@@ -4,17 +4,16 @@ import profileRouter from "./Routes/profile.routes.js";
 import adminRouter from "./Routes/admin.routes.js";
 import companyRouter from "./Routes/company.routes.js";
 import jobsRouter from "./Routes/jobs.routes.js";
-import notificationRouter from "./Routes/notification.routes.js"; // ✅ أضفنا Notification
+import notificationRouter from "./Routes/notification.routes.js"; 
 import { globalErrorHandler } from "./Utils/errorHandling.utils.js";
-import { connectDB } from "../prisma/client.js";
+import { connectDB } from "./Config/client.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "node:path";
 import { ServiceError } from "./Utils/serviceError.utils.js";
 import morgan from "morgan";
+
 const bootstrap = async (app , express) => {
-    
-    
     
     // ✅ Middlewares
     app.use(express.json());
@@ -57,7 +56,6 @@ const bootstrap = async (app , express) => {
     
     app.use("/api/user" , userRouter);
     
-    
     //get profile/ update profile/ upload profile photo 
     app.use("/api/profile", profileRouter)
     
@@ -69,17 +67,14 @@ const bootstrap = async (app , express) => {
     
 
     app.use("/api/jobs", jobsRouter );
-    
 
     app.use("/api/notifications", notificationRouter); // ✅ Route للـ Notifications
-
 
     // 404 error Route Not Found
     app.all("/*" , (req , res, next) => {
       return next(new ServiceError("Route Not Found!!",  404));
     });
     
-
     // global error handler middleware
     app.use(globalErrorHandler);
 }

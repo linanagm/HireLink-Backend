@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import "express-async-errors";
-import bootstrap from "./src/app.controller.js"
+import bootstrap from "./app.controller.js"
 
 // ✅ Load environment variables first
 dotenv.config();

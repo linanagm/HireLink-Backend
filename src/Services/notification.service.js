@@ -1,4 +1,4 @@
-import { prisma } from "../../prisma/client.js";
+import { prisma } from "../Config/client.js";
 
 // ✅ إنشاء إشعار جديد
 // export const createNotification = async (userId, message, type = "GENERAL") => {

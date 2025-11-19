@@ -1,11 +1,11 @@
 {
   "name": "hirelink-backend",
   "version": "1.0.0",
-  "description": "Coming soon...",
-  "main": "server.js",
+  "description": "Hirelink backend",
+  "main": "./src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon .",
     "prisma": "npx prisma"
   },
   "repository": {

@@ -1,5 +1,4 @@
-import { prisma } from "../../prisma/client.js";
-//import { createRecord, getById } from "../Utils/db/db.utils.js";
+import { prisma } from "../Config/client.js";
 import STATUS_CODES from "../Utils/constants/statuscode.js";
 import { JOBS_MESSAGES } from "../Utils/constants/messages.js";
 import { ServiceError } from "../Utils/serviceError.utils.js";
